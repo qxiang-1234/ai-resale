@@ -1,67 +1,81 @@
 export async function POST(req: Request) {
   try {
-    const { item, condition, features } = await req.json();
+    const { item, condition, features, platform } = await req.json();
 
-    const prompt = `
-You are a marketplace listing generator.
+    const selectedPlatform = platform || "Facebook Marketplace";
 
-You must generate a ready-to-post second-hand product listing.
-Do not chat with the user.
-Do not introduce yourself.
-Do not ask follow-up questions.
-Do not say you are an AI assistant.
-Do not use placeholders.
-Do not invent details that were not provided.
+    const userPrompt = `
+Write a second-hand marketplace listing using only the provided fields.
 
-Bad output example:
-"Hi there! I am an AI assistant. What would you like to list?"
-
-Good output example:
-Title:
-Used Standing Lamp with Adjustable Angle
-
-Description:
-Selling a used standing lamp in good condition. It has 3 brightness levels and an adjustable angle, making it useful for reading, working, or adding extra light to a room.
-
-Suggested Price Range:
-$15 - $30
-
-Now generate a listing using only this information:
-
+Provided fields:
 Item: ${item}
 Condition: ${condition}
 Features: ${features}
 
-Return only this exact format:
+Required format:
 
 Title:
 Description:
+Condition:
+Features:
 Suggested Price Range:
+
+Rules:
+- The title must only describe the item and provided features.
+- The description must be 1-2 sentences.
+- The condition must be copied from the provided condition.
+- The features must be copied from the provided features.
+- Do not add any detail that is not in the provided fields.
 `;
 
-    const response = await fetch("http://localhost:11434/api/generate", {
+    const response = await fetch("http://localhost:11434/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "phi",
-        prompt,
+        model: "qwen2.5:1.5b",
         stream: false,
+        messages: [
+          {
+            role: "system",
+            content: `
+You are a careful listing formatter.
+
+Your job is to turn provided item details into a clean listing.
+
+Do not be creative.
+Do not use marketing words like vintage, charming, excellent, perfect, amazing, deal, discount, original price, damage, wiring, safe, clean, height, size, color, material, brand, or model unless those words are provided by the user.
+Do not infer missing details.
+Do not add unsupported details.
+
+Output only the requested format.
+`,
+          },
+          {
+            role: "user",
+            content: userPrompt,
+          },
+        ],
         options: {
-          temperature: 0.2,
+          temperature: 0,
         },
       }),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to call local AI model.");
-    }
-
     const data = await response.json();
 
+    let generatedText = data.message?.content || "";
+
+    if (!generatedText.includes("Suggested Price Range:")) {
+      generatedText = `${generatedText.trim()}
+
+Suggested Price Range:
+Not enough market data. Please compare similar local listings before setting the final price.`;
+    }
+
     return Response.json({
-      result: data.response,
+      result: generatedText,
     });
   } catch (error) {
     console.error("Generate listing error:", error);
@@ -70,7 +84,7 @@ Suggested Price Range:
       {
         error: "Failed to generate listing.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

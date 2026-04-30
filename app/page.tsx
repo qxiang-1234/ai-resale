@@ -6,6 +6,7 @@ export default function Home() {
   const [item, setItem] = useState("");
   const [condition, setCondition] = useState("");
   const [features, setFeatures] = useState("");
+  const [platform, setPlatform] = useState("Facebook Marketplace");
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,7 @@ export default function Home() {
           item,
           condition,
           features,
+          platform,
         }),
       });
 
@@ -121,6 +123,21 @@ export default function Home() {
                   rows={5}
                   className="mt-2 w-full resize-none rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-gray-900"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Platform
+                </label>
+                <select
+                  value={platform}
+                  onChange={(event) => setPlatform(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-gray-900"
+                >
+                  <option value="Facebook Marketplace">
+                    Facebook Marketplace
+                  </option>
+                </select>
               </div>
 
               <button
