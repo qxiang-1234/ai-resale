@@ -2,20 +2,59 @@
 
 import { useState } from "react";
 
+const platforms = ["Facebook Marketplace", "eBay", "Xianyu", "Xiaohongshu"];
+
+function getPlatformBadgeLabel(platform: string) {
+  switch (platform) {
+    case "Facebook Marketplace":
+      return "Facebook";
+    case "eBay":
+      return "eBay";
+    case "Xianyu":
+      return "闲鱼";
+    case "Xiaohongshu":
+      return "小红书";
+    default:
+      return platform;
+  }
+}
+
 export default function Home() {
+  const [platform, setPlatform] = useState("Facebook Marketplace");
   const [item, setItem] = useState("");
   const [condition, setCondition] = useState("");
   const [features, setFeatures] = useState("");
-  const [platform, setPlatform] = useState("Facebook Marketplace");
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
+  const [validationError, setValidationError] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  function validateForm() {
+    if (!item.trim()) {
+      return "Please enter an item name.";
+    }
+
+    if (!condition.trim() && !features.trim()) {
+      return "Please enter at least condition or features.";
+    }
+
+    return "";
+  }
+
   async function handleGenerateListing() {
+    const formError = validateForm();
+
+    if (formError) {
+      setValidationError(formError);
+      setError("");
+      return;
+    }
+
     setLoading(true);
     setResult("");
     setError("");
+    setValidationError("");
     setCopied(false);
 
     try {
@@ -63,23 +102,27 @@ export default function Home() {
     }
   }
 
-  const isDisabled = loading || !item.trim();
-
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-10 text-gray-900">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-5xl">
         <section className="mb-8">
-          <p className="mb-2 text-sm font-medium text-gray-500">
-            AI Resale Assistant
-          </p>
+          <div className="mb-3 flex flex-wrap items-center gap-3">
+            <p className="text-sm font-medium text-gray-500">
+              AI Resale Assistant
+            </p>
+
+            <span className="rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+              {getPlatformBadgeLabel(platform)}
+            </span>
+          </div>
 
           <h1 className="text-4xl font-bold tracking-tight">
             Generate second-hand product listings with AI
           </h1>
 
           <p className="mt-4 max-w-2xl text-gray-600">
-            Enter basic item details, and the assistant will generate a
-            realistic marketplace listing for you.
+            Enter basic item details, choose a resale platform, and generate a
+            ready-to-post listing.
           </p>
         </section>
 
@@ -90,7 +133,24 @@ export default function Home() {
             <div className="mt-6 space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700">
-                  Item
+                  Platform
+                </label>
+                <select
+                  value={platform}
+                  onChange={(event) => setPlatform(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-gray-900"
+                >
+                  {platforms.map((platformOption) => (
+                    <option key={platformOption} value={platformOption}>
+                      {platformOption}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Item <span className="text-red-500">*</span>
                 </label>
                 <input
                   value={item}
@@ -125,27 +185,15 @@ export default function Home() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Platform
-                </label>
-                <select
-                  value={platform}
-                  onChange={(event) => setPlatform(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-gray-900"
-                >
-                  <option value="Facebook Marketplace">
-                    Facebook Marketplace
-                  </option>
-                  <option value="eBay">eBay</option>
-                  <option value="Xianyu">Xianyu</option>
-                  <option value="Xiaohongshu">Xiaohongshu</option>
-                </select>
-              </div>
+              {validationError && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  {validationError}
+                </div>
+              )}
 
               <button
                 onClick={handleGenerateListing}
-                disabled={isDisabled}
+                disabled={loading}
                 className="w-full rounded-xl bg-gray-900 px-4 py-3 font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? "Generating..." : "Generate Listing"}
@@ -154,11 +202,30 @@ export default function Home() {
           </section>
 
           <section className="rounded-2xl bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold">Generated Listing</h2>
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-xl font-semibold">Generated Listing</h2>
 
-            {!result && !error && (
+              <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                {getPlatformBadgeLabel(platform)}
+              </span>
+            </div>
+
+            {!result && !error && !loading && (
               <div className="mt-6 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-500">
                 Your AI-generated listing will appear here.
+              </div>
+            )}
+
+            {loading && (
+              <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-5">
+                <div className="space-y-4">
+                  <div className="h-4 w-1/3 animate-pulse rounded bg-gray-200" />
+                  <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
+                  <div className="h-4 w-5/6 animate-pulse rounded bg-gray-200" />
+                  <div className="h-4 w-2/3 animate-pulse rounded bg-gray-200" />
+                  <div className="mt-6 h-4 w-1/4 animate-pulse rounded bg-gray-200" />
+                  <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200" />
+                </div>
               </div>
             )}
 
