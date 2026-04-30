@@ -9,11 +9,13 @@ export default function Home() {
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function handleGenerateListing() {
     setLoading(true);
     setResult("");
     setError("");
+    setCopied(false);
 
     try {
       const response = await fetch("/api/generate", {
@@ -40,6 +42,22 @@ export default function Home() {
       setError("Something went wrong. Please check if Ollama is running.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCopyListing() {
+    if (!result) return;
+
+    try {
+      await navigator.clipboard.writeText(result);
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to copy listing.");
     }
   }
 
@@ -132,6 +150,19 @@ export default function Home() {
 
             {result && (
               <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-5">
+                <div className="mb-4 flex items-center justify-between gap-4">
+                  <p className="text-sm font-medium text-gray-700">
+                    Ready to post
+                  </p>
+
+                  <button
+                    onClick={handleCopyListing}
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+                  >
+                    {copied ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+
                 <pre className="whitespace-pre-wrap text-sm leading-6 text-gray-800">
                   {result}
                 </pre>
