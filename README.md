@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Resale Copilot
 
-## Getting Started
+AI Resale Copilot is a local AI-powered assistant that helps users generate second-hand product listings for different resale platforms.
 
-First, run the development server:
+The project was inspired by the real experience of preparing to move and selling many second-hand items online. Writing listing descriptions, adjusting tone for each platform, and estimating pricing can be repetitive, so this tool helps simplify that workflow.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Generate second-hand product listings from basic item details
+- Support multiple resale platforms:
+  - Facebook Marketplace
+  - eBay
+  - Xianyu
+  - Xiaohongshu
+- Platform-specific tone and language adaptation
+- Local LLM integration with Ollama
+- Prompt engineering for structured listing output
+- Output fallback for missing pricing information
+- Copy-to-clipboard button
+- Loading skeleton while generating
+- Platform badges
+- Basic input validation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- Ollama
+- qwen2.5:1.5b local model
 
-## Learn More
+## Architecture
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+User Input
+↓
+Next.js Frontend
+↓
+Next.js API Route
+↓
+Ollama Local LLM
+↓
+Generated Listing
+↓
+Frontend Display

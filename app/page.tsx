@@ -1,23 +1,8 @@
 "use client";
 
 import { useState } from "react";
-
-const platforms = ["Facebook Marketplace", "eBay", "Xianyu", "Xiaohongshu"];
-
-function getPlatformBadgeLabel(platform: string) {
-  switch (platform) {
-    case "Facebook Marketplace":
-      return "Facebook";
-    case "eBay":
-      return "eBay";
-    case "Xianyu":
-      return "闲鱼";
-    case "Xiaohongshu":
-      return "小红书";
-    default:
-      return platform;
-  }
-}
+import { getPlatformBadgeLabel, platforms } from "./utils/platform";
+import { validateListingForm } from "./utils/validation";
 
 export default function Home() {
   const [platform, setPlatform] = useState("Facebook Marketplace");
@@ -30,20 +15,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  function validateForm() {
-    if (!item.trim()) {
-      return "Please enter an item name.";
-    }
-
-    if (!condition.trim() && !features.trim()) {
-      return "Please enter at least condition or features.";
-    }
-
-    return "";
-  }
-
   async function handleGenerateListing() {
-    const formError = validateForm();
+    const formError = validateListingForm({
+      item,
+      condition,
+      features,
+    });
 
     if (formError) {
       setValidationError(formError);
