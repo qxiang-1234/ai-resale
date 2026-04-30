@@ -137,6 +137,9 @@ export default function Home() {
                   <option value="Facebook Marketplace">
                     Facebook Marketplace
                   </option>
+                  <option value="eBay">eBay</option>
+                  <option value="Xianyu">Xianyu</option>
+                  <option value="Xiaohongshu">Xiaohongshu</option>
                 </select>
               </div>
 
